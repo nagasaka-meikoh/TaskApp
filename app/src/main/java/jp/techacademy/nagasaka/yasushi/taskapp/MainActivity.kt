@@ -2,15 +2,13 @@ package jp.techacademy.nagasaka.yasushi.taskapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_main.*
-import io.realm.RealmChangeListener
-import io.realm.Sort
 import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.util.Log
+import io.realm.*
 
 const val EXTRA_TASK = "jp.techacademy.nagasaka.yasushi.taskapp.TASK"
 
@@ -33,7 +31,6 @@ class MainActivity : AppCompatActivity() {
             Log.d("b", search_text.text.toString())
 
             reloadListView()
-
 
 
 
@@ -106,9 +103,24 @@ class MainActivity : AppCompatActivity() {
         reloadListView()
     }
 
+    private fun searchTask() : RealmResults<Task>{
+        if (search_text.text.toString() == ""){
+            return mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
+        }
+        return mRealm.where(Task::class.java).contains("category", search_text.text.toString()).findAll().sort("date", Sort.DESCENDING)
+    }
+
     private fun reloadListView() {
-        // Realmデータベースから、「すべてのデータを取得して新しい日時順に並べた結果」を取得
-        val taskRealmResults = mRealm.where(Task::class.java).contains("category", search_text.text.toString()).findAll().sort("date", Sort.DESCENDING)
+
+        //taskRealmResultsの初期化したい
+        val taskRealmResults = searchTask()
+
+        //Realmデータベースから、「すべてのデータを取得して新しい日時順に並べた結果」を取得
+        //if (search_text.text.toString() != "") {
+        //    taskRealmResults = mRealm.where(Task::class.java).contains("category", search_text.text.toString()).findAll().sort("date", Sort.DESCENDING)
+        //} else {
+        //    taskRealmResults = mRealm.where(Task::class.java).findAll().sort("date", Sort.DESCENDING)
+        //}
 
 
         // 上記の結果を、TaskListとしてセットする
